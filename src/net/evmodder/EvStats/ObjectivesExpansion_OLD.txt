@@ -1,0 +1,410 @@
+package net.evmodder.EvStats;
+
+import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+
+public class ObjectivesExpansion_OLD extends PlaceholderExpansion{
+	// Resource Page:
+	// https://www.spigotmc.org/resources/placeholderapi-scoreboard-objectives-placeholder.48236/
+	// eCloud: https://api.extendedclip.com/manage/
+
+	enum ReturnType{SCORE, ENTRY};
+	private static boolean ASC = true;
+	private static boolean DESC = false;
+
+	@Override public boolean canRegister(){
+		return true;
+	}
+
+	@Override public String getAuthor(){
+		return "EvModder/LethalBunny";
+	}
+
+	@Override public String getName(){
+		return "ScoreboardObjectives";
+	}
+
+	@Override public String getIdentifier(){
+		return "objective";
+	}
+
+	@Override public String getVersion(){
+		// v4.3.0 is not released. attemps to support older versions of java by
+		// catching the str.isEmpty() method in stringIsNullOrEmpty()
+		return "4.3.0";
+	}
+
+	@Override public List<String> getPlaceholders(){
+		return Arrays.asList(
+				plc("displayname_<obj-name>"),
+				plc("score_<obj-name>"),
+				plc("score_<obj-name>_[otherEntry]"),
+				plc("scorep_<obj-name>"),
+				plc("scorep_<obj-name>_[otherPlayer]"),
+				plc("displayname_{<obj-name>}"),
+				plc("score_{<obj-name>}"),
+				plc("score_{<obj-name>}_{[otherEntry]}"),
+				plc("scorep_{<obj-name>}"),
+				plc("scorep_{<obj-name>}_{[otherPlayer]}"),
+				plc("scoreposhigh_{<obj-name>}_{<#>}"),
+				plc("scoreposlow_{<obj-name>}_{<#>}"),
+				plc("entryposhigh_{<obj-name>}_{<#>}"),
+				plc("entryposlow_{<obj-name>}_{<#>}"),
+				plc("scoreof_{<obj-name>}_for_<placeholder>")
+		);
+	}
+
+	@Override public String onRequest(OfflinePlayer player, String identifier){
+		try{
+			ArrayList<String> args = new ArrayList<String>();
+
+			if(identifier.startsWith("scorep_{")){
+				args = getArgsAdv(identifier, "scorep_{");
+				return parseScorePlayer(player, args);
+			}
+
+			if(identifier.startsWith("scorep_")){
+				args = getArgs(identifier, "scorep_");
+				return parseScorePlayer(player, args);
+			}
+
+			if(identifier.startsWith("score_{")){
+				args = getArgsAdv(identifier, "score_{");
+				return parseScoreAlone(player, args);
+			}
+
+			if(identifier.startsWith("score_")){
+				args = getArgs(identifier, "score_");
+				return parseScoreAlone(player, args);
+			}
+
+			if(identifier.startsWith("displayname_{")){
+				args = getArgsAdv(identifier, "displayname_{");
+				return parseDisplayName(args);
+			}
+
+			if(identifier.startsWith("displayname_")){
+				args = getArgs(identifier, "displayname_");
+				return parseDisplayName(args);
+			}
+
+			if(identifier.startsWith("scoreposhigh_{")){
+				args = getArgsAdv(identifier, "scoreposhigh_{");
+				return parseScoreAtPosition(args, ReturnType.SCORE, DESC);
+			}
+
+			if(identifier.startsWith("scoreposlow_{")){
+				args = getArgsAdv(identifier, "scoreposlow_{");
+				return parseScoreAtPosition(args, ReturnType.SCORE, ASC);
+			}
+
+			if(identifier.startsWith("entryposhigh_{")){
+				args = getArgsAdv(identifier, "entryposhigh_{");
+				return parseScoreAtPosition(args, ReturnType.SCORE, DESC);
+			}
+
+			if(identifier.startsWith("entryposlow_{")){
+				args = getArgsAdv(identifier, "entryposlow_{");
+				return parseScoreAtPosition(args, ReturnType.SCORE, ASC);
+			}
+
+			if(identifier.startsWith("scoreof_{")){
+				args = getArgsSpecial(identifier, "scoreof_{", "}_for_", "");
+				try{
+					String placeholderValue = PlaceholderAPI.setPlaceholders(player, "%" + args.get(1) + "%");
+					args.set(1, placeholderValue);
+				}catch(Exception e){}
+				return parseScoreAlone(player, args);
+			}
+		}
+		catch(Exception e){
+			ConsoleCommandSender c = Bukkit.getConsoleSender();
+			c.sendMessage(ChatColor.GOLD+"Papi Objective Expansion: "+
+						ChatColor.RED+"Parsing error occurred. Likely due to invalid use of a placeholder.");
+			c.sendMessage(ChatColor.GOLD+"Placeholder used: "+ChatColor.YELLOW + plc(identifier));
+			c.sendMessage(ChatColor.GOLD+"Stacktrace to follow error msg: "+ChatColor.RED + e.getMessage());
+			e.printStackTrace();
+			return "Error_Check_Console";
+		}
+
+		// return null if invalid placeholder aka does not exist
+		return null;
+	}
+
+	// kept this method to support legacy PAPI plugins
+	public String onPlaceholderRequest(Player player, String identifier){
+		return this.onRequest(player, identifier);
+	}
+
+	// ==============================
+	// Placeholder Methods
+	// ==============================
+
+	private static String parseScorePlayer(OfflinePlayer player, ArrayList<String> args){
+		String objName = null;
+		String entry = (player == null) ? null : player.getName();
+
+		if(args.size() == 2){
+			objName = args.get(0);
+			entry = args.get(1);
+			String p = getOnlinePlayer(entry);
+			if(p == null){
+				p = getOfflinePlayer(entry);
+				if(p == null) return "PNF";
+			}
+		}
+		else if(args.size() == 1){
+			objName = args.get(0);
+		}
+		else{
+			return "";
+		}
+		if(entry == null) return "PNF";
+		if(objName == null) return "";
+
+		int score = getScore(objName, entry);
+		return "" + score;
+	}
+
+	private static String parseScoreAlone(OfflinePlayer player, ArrayList<String> args){
+		String objName = null;
+		String entry = (player == null) ? null : player.getName();
+
+		if(args.size() == 2){
+			objName = args.get(0);
+			entry = args.get(1);
+		}
+		else if(args.size() == 1){
+			objName = args.get(0);
+		}
+		else{
+			return "";
+		}
+		if(entry == null || objName == null) return "";
+
+		int score = getScore(objName, entry);
+		return "" + score;
+	}
+
+	private static String parseDisplayName(ArrayList<String> args){
+		if(args.size() >= 1){
+			String objName = args.get(0);
+			try{
+				Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+				Objective obj = board.getObjective(objName);
+				return obj.getDisplayName();
+			}catch(Exception e){
+				return "ObjDNE";
+			}
+		}
+		return "";
+	}
+
+	private static String parseScoreAtPosition(ArrayList<String> args, ReturnType returnType, boolean orderASC){
+		String objName = null;
+		int pos = -1;
+
+		// make sure we have a score and a number
+		if(args.size() != 2){
+			return "";
+		}
+
+		objName = args.get(0);
+		pos = Integer.parseInt(args.get(1));
+
+		// if invalid values then return
+		if(stringIsNullOrEmpty(objName) || pos < 1){
+			return "";
+		}
+		// adjust position for arrays
+		pos = pos - 1;
+
+		// get our Entries & their Scores
+		HashMap<String, Integer> unsortedMap = getEntryScores(objName);
+		Map<String, Integer> map = sortMapByValue(unsortedMap, orderASC);
+
+		try{
+			List<String> entries = new ArrayList<String>(map.keySet());
+			String entryAtPos = entries.get(pos);
+
+			if(returnType == ReturnType.SCORE){
+				int scoreAtPos = map.get(entryAtPos);
+				return "" + scoreAtPos;
+			}
+			else{
+				return entryAtPos;
+			}
+		}catch(Exception e){}
+
+		return "";
+	}
+
+	// ==============================
+	// Helper Functions
+	// ==============================
+
+	private String plc(String str){
+		return "%" + getIdentifier() + "_" + str + "%";
+	}
+
+	private static ArrayList<String> getArgs(String str, String ident){
+		ArrayList<String> result = new ArrayList<String>();
+		String argsStr = str.replace(ident, "");
+
+		String[] args = argsStr.split("_");
+		if(args.length == 2){
+			result.add(args[0]);
+			result.add(args[1]);
+		}
+		else{
+			result.add(args[0]);
+		}
+
+		return result;
+	}
+
+	private static ArrayList<String> getArgsAdv(String str, String ident){
+		ArrayList<String> result = new ArrayList<String>();
+		String argsStr = str.replace(ident, "");
+
+		if(argsStr.contains("}_{")){
+			// 2 args
+			String[] args = argsStr.split(Pattern.quote("}_{"));
+			try{
+				result.add(args[0]);
+				result.add(args[1].replaceAll(Pattern.quote("}"), ""));
+			}catch(Exception e){}
+		}
+		else{
+			// 1 arg
+			result.add(argsStr.replaceAll(Pattern.quote("}"), ""));
+		}
+
+		return result;
+	}
+
+	private static ArrayList<String> getArgsSpecial(String str, String identStart, String identMiddle, String identEnd){
+		ArrayList<String> result = new ArrayList<String>();
+		String argsStr = str.replace(identStart, "");
+
+		if(argsStr.contains(identMiddle)){
+			// 2 args
+			String[] args = argsStr.split(Pattern.quote(identMiddle));
+			try{
+				result.add(args[0]);
+				result.add(args[1].replaceAll(Pattern.quote(identEnd), ""));
+			}catch(Exception e){}
+		}
+		else{
+			// 1 arg
+			result.add(argsStr.replaceAll(Pattern.quote(identEnd), ""));
+		}
+
+		return result;
+	}
+
+	private static int getScore(String objName, String entry){
+		int num = 0;
+		try{
+			Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+			Objective obj = board.getObjective(objName);
+			Score score = obj.getScore(entry);
+			num = score.getScore();
+		}catch(Exception e){}
+		return num;
+	}
+
+	private static HashMap<String, Integer> getEntryScores(String objName){
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+		try{
+			Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
+			Objective obj = board.getObjective(objName);
+			Set<String> entries = board.getEntries();
+
+			for(String entry : entries){
+				Score score = obj.getScore(entry);
+				int value = score.getScore();
+				map.put(entry, value);
+			}
+		}catch(Exception e){}
+
+		return map;
+	}
+
+	private static String getOnlinePlayer(String player){
+		for(Player p : Bukkit.getOnlinePlayers()){
+			if(p.getName().equalsIgnoreCase(player)) return p.getName();
+		}
+		return null;
+	}
+
+	private static String getOfflinePlayer(String player){
+		for(OfflinePlayer p : Bukkit.getOfflinePlayers()){
+			if(p.getName().equalsIgnoreCase(player)) return p.getName();
+		}
+		return null;
+	}
+
+	private static boolean stringIsNullOrEmpty(String str){
+		try{
+			// Java 11+
+			if(str == null || str.isEmpty() || str.isBlank()){
+				return true;
+			}
+			return false;
+		}catch(Exception e){
+			// pre Java 11
+			if(str == null || str.equals("")){
+				return true;
+			}
+			return false;
+		}
+	}
+
+	// ==============================
+	// Open Source Snippets
+	// ==============================
+
+	/**
+	 * Sorts a given Map by value and then by key if values are the same in the
+	 * given order.<br/>
+	 * Solution taken from:
+	 * https://stackoverflow.com/questions/8119366/sorting-hashmap-by-values
+	 * 
+	 * @param unsortedMap Map&lt;String, Integer&gt;
+	 * @param orderByAsc boolean
+	 * @return Map&lt;String, Integer&gt;
+	 */
+	private static Map<String, Integer> sortMapByValue(Map<String, Integer> unsortedMap, final boolean orderByAsc){
+		List<Entry<String, Integer>> list = new LinkedList<>(unsortedMap.entrySet());
+
+		// Sorting the list based on values
+		list.sort((o1, o2) -> orderByAsc ? (
+		// order by Ascending: lowest-to-highest
+		o1.getValue().compareTo(o2.getValue()) == 0 ? o1.getKey().compareTo(o2.getKey()) : o1.getValue().compareTo(o2.getValue())) : (
+		// order by Descending: highest-to-lowest
+		o2.getValue().compareTo(o1.getValue()) == 0 ? o2.getKey().compareTo(o1.getKey()) : o2.getValue().compareTo(o1.getValue())));
+
+		return list.stream().collect(Collectors.toMap(Entry::getKey, Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+	}
+}

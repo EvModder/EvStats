@@ -1,0 +1,23 @@
+name: EvStats
+main: net.evmodder.EvStats.EvStatsMain
+author: EvModder
+website: https://github.com/EvModder/EvStats
+description: Auto-generate scoreboards for a bunch o' stats
+version: 1.0
+api-version: 1.13
+
+# IIUC, softdepend will prefer loading these plugins BEFORE loading EvStats
+softdepend: [DropHeads, PlayerHeads, HorseOwners, ChatManager]
+
+commands:
+  stat:
+    description: Display a given statistic on the scoreboard
+    usage: /stat <stat> [on/off/delay(default=5s)]
+    aliases: [stats,statistic,statistics]
+    permission: eventials.statistics
+    permission-message: You do not have permission to do this.
+
+permissions:
+  eventials.statistics:
+    description: Permission to use /stat
+    default: true

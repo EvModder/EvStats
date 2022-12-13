@@ -1,0 +1,33 @@
+### WARNING:
+# Once a scoreboard has been registered by the plugin, any changes to its name
+# will need to be done manually ingame with /scoreboard objectives modify
+# Please be sure to make any desired changes in translations.yml beforehand.
+
+# Create a scoreboard for every vanilla statistic
+add-scoreboards-for-vanilla-statistics: false
+vanilla-statistics-scoreboard-prefix: 'zstats-'
+
+# Create a scoreboard counting total advancements
+add-scoreboard-for-advancements: false
+advancements-counted: [story, adventure, nether, end, husbandry]
+advancements-scoreboard-prefix: 'zstats-'
+
+# Create a scoreboard for number of chat messages sent
+add-scoreboard-for-chats: false
+chat-scoreboard-prefix: 'zstats-'
+# TODO: Planned integration with chat plugin(s) for statistics related to swearing, links, etc
+
+# Create scoreboards of items destroyed (for each item type)
+add-scoreboards-for-items-destroyed: false
+items-scoreboard-prefix: 'istats-'
+
+# Create scoreboards for equine jump, speed, & health stats
+# REQUIRED PLUGIN: HorseHowners
+add-scoreboards-for-horse-attributes: false
+horse-scoreboard-prefix: ''
+
+
+# Create scoreboards for counting mobs beheaded
+# REQUIRED PLUGIN: DropHeads or PlayerHeads
+add-scoreboards-for-mobs-beheaded: false
+behead-scoreboard-prefix: 'dstats-'
