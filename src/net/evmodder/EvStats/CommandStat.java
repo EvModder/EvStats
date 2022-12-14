@@ -166,7 +166,7 @@ public class CommandStat extends EvCommand{
 			Objective objCopy = sb.getObjective(obj.getName());
 			Object nmsObj = methodGetObjective.of(nmsMainBoard).call(obj.getName());
 			System.out.println("hmmmm: "+playerScores.size());/////////////////////////////////////
-			int i=0;
+//			int i=0;
 			for(Object entry : playerScores){
 				@SuppressWarnings("rawtypes") String entryName = (String)((java.util.Map.Entry)entry).getKey();
 				@SuppressWarnings("rawtypes") Map nmsObjToScore = (Map)((java.util.Map.Entry)entry).getValue();
@@ -175,7 +175,7 @@ public class CommandStat extends EvCommand{
 					objCopy.getScore(entryName).setScore((int)methodGetScore.of(nmsScore).call());
 //					System.out.println("added score for "+entryName+": "+(int)methodGetScore.of(nmsScore).call());
 				}
-				if(++i == 10) break;
+//				if(++i == 10) break;
 			}
 			objCopy.setDisplaySlot(DisplaySlot.SIDEBAR);
 			pl.getLogger().info("all scores of caller on sb: "+sb.getScores(player.getName()).size());

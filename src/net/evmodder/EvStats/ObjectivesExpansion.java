@@ -44,7 +44,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 //				plc("scoreposlow_{<obj-name>}_{<#>}"),
 
 				// Supported placeholders
-				plc("displayname_{<obj>}"),//
+				plc("displayname_{<obj>}"),
 				plc("score_{<obj>}%"),
 				plc("score_{<obj>}_{[otherEntry]}"),
 				plc("entrypos_{<obj>}_{<#>}"),

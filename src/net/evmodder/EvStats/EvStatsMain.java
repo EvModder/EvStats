@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.Objective;
 import net.evmodder.EvLib.EvPlugin;
 import net.evmodder.EvLib.FileIO;
 import net.evmodder.EvLib.extras.TextUtils;
@@ -94,12 +95,18 @@ public class EvStatsMain extends EvPlugin {
 	ArrayList<String> addObjectiveCmds = new ArrayList<>();
 	// TODO: Make private
 	public boolean registerObjectiveIfDoesNotExist5sDelay(String name, String criteria, Component displayName){
-		if(getServer().getScoreboardManager().getMainScoreboard().getObjective(name) != null) return false;
+		Objective objective = getServer().getScoreboardManager().getMainScoreboard().getObjective(name);
+		if(objective != null && objective.getDisplayName().equals(displayName.toPlainText())) return false;
+
 		if(addObjectiveCmds.isEmpty()) new BukkitRunnable(){@Override public void run(){
 			for(String cmd : addObjectiveCmds) getServer().dispatchCommand(getServer().getConsoleSender(), cmd);
 			addObjectiveCmds.clear();
 		}}.runTaskLater(this, 20*5);
-		addObjectiveCmds.add("scoreboard objectives add "+name+" "+criteria+" "+displayName.toString());
+		if(objective == null) addObjectiveCmds.add("scoreboard objectives add "+name+" "+criteria+" "+displayName.toString());
+		else{
+			getLogger().info("Modifying displayname for objective: "+name);
+			addObjectiveCmds.add("scoreboard objectives modify "+name+" displayname "+displayName.toString());
+		}
 		return true;
 	}
 	public boolean registerObjectiveIfDoesNotExist5sDelay(String name, Criteria criteria, Component displayName){

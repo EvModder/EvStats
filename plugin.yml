@@ -14,10 +14,20 @@ commands:
     description: Display a given statistic on the scoreboard
     usage: /stat <stat> [on/off/delay(default=5s)]
     aliases: [stats,statistic,statistics]
-    permission: eventials.statistics
+    permission: evstats.command.statistics
+    permission-message: You do not have permission to do this.
+
+  register_scoreboards:
+    description: Registers (or renamed) all enabled scoreboards
+    usage: /register_scoreboards
+    permission: evstats.command.register_scoreboards
     permission-message: You do not have permission to do this.
 
 permissions:
-  eventials.statistics:
+  evstats.command.statistics:
     description: Permission to use /stat
     default: true
+
+  evstats.command.register_scoreboards:
+    description: Permission to use /register_scoreboards
+    default: op
