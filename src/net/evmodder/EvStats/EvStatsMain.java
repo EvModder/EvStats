@@ -72,8 +72,10 @@ public class EvStatsMain extends EvPlugin {
 //		FileIO.deleteFile("translations-temp-DELETE.yml");
 
 		if(config.getBoolean("add-scoreboards-for-vanilla-statistics", false)) new VanillaPlayerStats(this);
+		if(config.getBoolean("add-scoreboards-for-bukkit-player-events", false)) new BukkitPlayerEventStats(this);
 		if(config.getBoolean("add-scoreboards-for-items-destroyed", false)) new ItemStats(this);
 		if(config.getBoolean("add-scoreboard-for-chats", false)) new ChatStats(this);
+		if(config.getBoolean("add-scoreboard-for-commands", false)) new CommandStats(this);
 		if(config.getBoolean("add-scoreboard-for-advancements", false)) new AdvancementStats(this);
 		if(config.getBoolean("add-scoreboards-for-horse-attributes", false)
 				&& checkExists("net.evmodder.HorseOwners.api.events.HorseClaimEvent")) new EquineStats(this);
@@ -117,11 +119,6 @@ public class EvStatsMain extends EvPlugin {
 
 //final Scoreboard board = pl.getServer().getScoreboardManager().getMainScoreboard();
 //board.registerNewObjective("buildscore", "dummy", "§[■] Blocks Placed [■]");
-//board.registerNewObjective("advancements", "dummy ", "");
-//board.registerNewObjective("deaths", "deathCount", "");
-//board.registerNewObjective("murderscore", "playerKillCount ", "");
-//board.registerNewObjective("levels", "level", "§e- §bLevels §e-");
-//board.registerNewObjective("health", "health", "Health");
 
 
 //Display all different equine stats in a loop

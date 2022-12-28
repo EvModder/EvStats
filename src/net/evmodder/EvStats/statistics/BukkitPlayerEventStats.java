@@ -1,0 +1,76 @@
+package net.evmodder.EvStats.statistics;
+
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import net.evmodder.EvStats.EvStatsMain;
+
+/**
+* @author EvModder/EvDoc (evdoc at altcraft.net)
+*/
+public class BukkitPlayerEventStats{
+	private void incrementScore(String who, Objective obj){
+		final Score score = obj.getScore(who);
+		score.setScore((score.isScoreSet() ? score.getScore() : 0) + 1);
+	}
+
+	public BukkitPlayerEventStats(EvStatsMain pl){
+		final String PREFIX = pl.getConfig().getString("bukkit-player-events-scoreboard-prefix", "zstats-");
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"interact_entity", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.interact_entity"));
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"interact_block", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.interact_block"));
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"mined", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.mined"));
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"placed", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.placed"));
+		// Note: "Dropped Items" aggregate already exists in vanilla stats, but not pick(ed)_up.
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"pick_up", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.picked_up"));
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"consumed", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.consumed"));
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"crafted", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.crafted"));
+
+		// Register listener for various PlayerEvents
+		pl.getServer().getPluginManager().registerEvents(new Listener(){
+			final Objective interactEntityObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"interact_entity");
+			final Objective interactBlockObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"interact_block");
+			final Objective minedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"mined");
+			final Objective placedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"placed");
+			final Objective brokenObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"broken");
+			final Objective pickupObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"pick_up");
+			final Objective consumedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"consumed");
+			final Objective craftedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"crafted");
+			@EventHandler(ignoreCancelled = true) public void onEntityRightClick(PlayerInteractEntityEvent evt){
+				incrementScore(evt.getPlayer().getName(), interactEntityObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onBlockRightClick(PlayerInteractEvent evt){
+				if(evt.getAction() == Action.RIGHT_CLICK_BLOCK) incrementScore(evt.getPlayer().getName(), interactBlockObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onBlockMine(BlockBreakEvent evt){
+				incrementScore(evt.getPlayer().getName(), minedObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onBlockPlace(BlockPlaceEvent evt){
+				incrementScore(evt.getPlayer().getName(), placedObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onToolBreak(PlayerItemBreakEvent evt){
+				incrementScore(evt.getPlayer().getName(), brokenObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onItemPickup(EntityPickupItemEvent evt){
+				if(evt.getEntityType() == EntityType.PLAYER) incrementScore(evt.getEntity().getName(), pickupObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onItemConsume(PlayerItemConsumeEvent evt){
+				incrementScore(evt.getPlayer().getName(), consumedObj);
+			}
+			@EventHandler(ignoreCancelled = true) public void onItemCraft(CraftItemEvent evt){
+				incrementScore(evt.getWhoClicked().getName(), craftedObj);
+			}
+		}, pl);
+	}
+}

@@ -2,6 +2,7 @@
 # Be sure to edit anything here before registering the scoreboards!
 
 chat-scoreboard-name: "${gamerule.category.chat}"
+command-scoreboard-name: "Commands Sent"
 advancement-scoreboard-name: "${key.advancements}"
 behead-scoreboard-name: "Beheadings"
 behead-scoreboard-name.entity: "Beheaded %"
@@ -73,3 +74,13 @@ vanilla-statistics:
   killed: "commands.kill.success.single"
   killed_by: "Killed By %"
   crafted: "Crafted %"
+
+bukkit-player-events:
+  interact_entity: "Interactions with Entities"
+  interact_block: "Interactions with Blocks"
+  mined: "Blocks Mined"
+  placed: "Blocks Placed"
+  broken: "Tools Broken"
+  picked_up: "Items Picked Up"
+  consumed: "Items Consumed"
+  crafted: "Items Crafted"

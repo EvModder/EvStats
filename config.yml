@@ -7,6 +7,10 @@
 add-scoreboards-for-vanilla-statistics: false
 vanilla-statistics-scoreboard-prefix: 'zstats-'
 
+# Create scoreboards for select Bukkit-supported PlayerEvents
+add-scoreboards-for-bukkit-player-events: false
+bukkit-player-events-scoreboard-prefix: 'zstats-'
+
 # Create a scoreboard counting total advancements
 add-scoreboard-for-advancements: false
 advancements-counted: [story, adventure, nether, end, husbandry]
@@ -16,6 +20,10 @@ advancements-scoreboard-prefix: 'zstats-'
 add-scoreboard-for-chats: false
 chat-scoreboard-prefix: 'zstats-'
 # TODO: Planned integration with chat plugin(s) for statistics related to swearing, links, etc
+
+# Create a scoreboard for number of commands sent
+add-scoreboard-for-commands: false
+command-scoreboard-prefix: 'zstats-'
 
 # Create scoreboards of items destroyed (for each item type)
 add-scoreboards-for-items-destroyed: false
