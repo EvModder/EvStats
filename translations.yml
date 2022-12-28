@@ -5,7 +5,7 @@ chat-scoreboard-name: "${gamerule.category.chat}"
 command-scoreboard-name: "Commands Sent"
 advancement-scoreboard-name: "${key.advancements}"
 behead-scoreboard-name: "Beheadings"
-behead-scoreboard-name.entity: "Beheaded %"
+behead-scoreboard-name-entity: "Beheaded %s"
 
 item-statistics:
   fire: "Items lost to fire"
@@ -19,9 +19,9 @@ item-statistics:
   unknown: "Items lost to UNKNOWN DamageCause (!)"
 
 equine-statistics:
-  speed: "% ${attribute.name.generic.movement_speed}x100"
-  jump: "% ${key.jump}x100"
-  health: "% ${attribute.name.generic.max_health}"
+  speed: "%s ${attribute.name.generic.movement_speed}x100"
+  jump: "%s ${key.jump}x100"
+  health: "%s ${attribute.name.generic.max_health}"
 
 vanilla-statistics:
   air: "${block.minecraft.air}"
@@ -66,14 +66,14 @@ vanilla-statistics:
   teamkill.white: "Team Kills White"
   teamkill.yellow: "Team Kills Yellow"
 
-  dropped: "${stat_type.minecraft.dropped} %"
-  picked_up: "${stat_type.minecraft.picked_up} %"
-  broken: "Broken %"
-  used: "Used %"
-  mined: "Mined %"
+  dropped: "${stat_type.minecraft.dropped} %s"
+  picked_up: "${stat_type.minecraft.picked_up} %s"
+  broken: "Broken %s"
+  used: "Used %s"
+  mined: "Mined %s"
   killed: "commands.kill.success.single"
-  killed_by: "Killed By %"
-  crafted: "Crafted %"
+  killed_by: "Killed By %s"
+  crafted: "Crafted %s"
 
 bukkit-player-events:
   interact_entity: "Interactions with Entities"

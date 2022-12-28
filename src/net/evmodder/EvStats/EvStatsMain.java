@@ -39,14 +39,15 @@ public class EvStatsMain extends EvPlugin {
 							// Special case:
 							if(start == 0 && i+1 == msg.length()) return new TranslationComponent(msg.substring(2, i), with);
 							finalWithComps.add(loadTranslationComp(msg.substring(start+2, i)));
-							builder.append('%');
+							builder.append("%s");
 							continue;
 						}
 					}
 					builder.append(msg.substring(start, i+1));
 					continue;
 				case '%':
-					finalWithComps.add(with[withIdx++]);
+					if(i+1 == msg.length() || msg.charAt(i+1) != '%') finalWithComps.add(with[withIdx++]);
+					else{builder.append('%'); ++i; continue;} // %% is escape of %
 				default:
 					builder.append(msg.charAt(i));
 			}

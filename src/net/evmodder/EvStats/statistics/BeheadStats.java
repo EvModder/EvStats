@@ -45,7 +45,7 @@ public class BeheadStats{
 				final String entNameL = e.name().toLowerCase();
 				final TranslationComponent entNameComp = new TranslationComponent("entity.minecraft."+entNameL);
 				pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"beheaded_"+entNameL, Criteria.DUMMY,
-						pl.loadTranslationComp("behead-scoreboard-name.entity", entNameComp));
+						pl.loadTranslationComp("behead-scoreboard-name-entity", entNameComp));
 			}
 		}
 
