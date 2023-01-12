@@ -86,15 +86,13 @@ public class ItemStats{
 			}
 			@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 			public void itemDespawnEvent(ItemDespawnEvent evt){
-				if(!evt.isCancelled()){
-//					pl.getLogger().info("Item Despawn: "+TextUtils.locationToString(evt.getEntity().getLocation())+", type: "+evt.getEntity().getItemStack().getType().name().toLowerCase());
-					incrDeathScore(PREFIX+"despawn", evt.getEntity().getItemStack());
-					evt.getEntity().remove();
-				}
+//				pl.getLogger().info("Item Despawn: "+TextUtils.locationToString(evt.getEntity().getLocation())+", type: "+evt.getEntity().getItemStack().getType().name().toLowerCase());
+				incrDeathScore(PREFIX+"despawn", evt.getEntity().getItemStack());
+				evt.getEntity().remove();
 			}
 			@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 			public void onItemMiscDamage(EntityDamageEvent evt){
-				if(!evt.isCancelled() && evt.getEntity() instanceof Item){
+				if(evt.getEntity() instanceof Item){
 					//pl.getLogger().info("Item damage event: "+evt.getCause().name()/+" (item cur health: "+NBTTagUtils.getTag(evt.getEntity()).getShort("Health")+")");
 					if(NBTTagUtils.getTag(evt.getEntity()).getShort("Health") <= evt.getFinalDamage()){
 						incrDeathScore(PREFIX+getObjectiveNameFromDamageCause(evt.getCause()), ((Item)evt.getEntity()).getItemStack());

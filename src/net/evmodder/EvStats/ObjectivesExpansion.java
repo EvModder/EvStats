@@ -68,7 +68,10 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 //	private BukkitRunnable cacheExpirationTask;
 	private Score getScoreAtRank(String objName, int rank){
 		final Objective obj = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(objName);
-		if(obj == null) return null;
+		if(obj == null){
+			Bukkit.getLogger().warning("Unknown objective: "+objName);
+			return null;
+		}
 		final Set<String> entries = Bukkit.getScoreboardManager().getMainScoreboard().getEntries();
 		List<Score> objScores = sortedScores.get(obj);
 		if(objScores == null || entries.size() > numEntries){
