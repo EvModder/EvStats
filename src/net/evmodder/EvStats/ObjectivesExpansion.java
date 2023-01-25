@@ -25,24 +25,24 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	@Override public String getAuthor(){return "EvModder & LethalBunny";}
 	@Override public String getName(){return "ScoreboardObjectives";}
 	@Override public String getIdentifier(){return "objective";}
-	@Override public String getVersion(){return "5.0";}
+	@Override public String getVersion(){return "5.1";}
 
 	private String plc(String str){return "%" + getIdentifier() + "_" + str + "%";}
 	@Override public List<String> getPlaceholders(){
 		return Arrays.asList(
 				// Deprecated placeholders (still supported, but not shown in TAB-complete)
-//				plc("displayname_<obj-name>"),
-//				plc("score_<obj-name>"),
-//				plc("score_<obj-name>_[otherEntry]"),
-//				plc("scorep_<obj-name>"),
-//				plc("scorep_<obj-name>_[otherEntry]"),
-//				plc("scorep_{<obj-name>}"),
-//				plc("scorep_{<obj-name>}_{[otherPlayer]}"),
-//				plc("scoreof_{<obj-name>}_for_<placeholder>"),
-//				plc("entryposhigh_{<obj-name>}_{<#>}"),
-//				plc("scoreposhigh_{<obj-name>}_{<#>}"),
-//				plc("entryposlow_{<obj-name>}_{<#>}"),
-//				plc("scoreposlow_{<obj-name>}_{<#>}"),
+//				plc("displayname_<obj>"),
+//				plc("score_<obj>"),
+//				plc("score_<obj>_[otherEntry]"),
+//				plc("scorep_<obj>"),
+//				plc("scorep_<obj>_[otherEntry]"),
+//				plc("scorep_{<obj>}"),
+//				plc("scorep_{<obj>}_{[otherPlayer]}"),
+//				plc("scoreof_{<obj>}_for_<placeholder>"),
+//				plc("entryposhigh_{<obj>}_{<#>}"),
+//				plc("scoreposhigh_{<obj>}_{<#>}"),
+//				plc("entryposlow_{<obj>}_{<#>}"),
+//				plc("scoreposlow_{<obj>}_{<#>}"),
 
 				// Supported placeholders
 				plc("displayname_{<obj>}"),
@@ -97,18 +97,25 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	}
 	private final Pair<String, Integer> parseNextExpansion(final OfflinePlayer player, final String identifier, final int start){
 		if(start + 1 > identifier.length() || identifier.charAt(start) != '{') return null;//invalid input
-		if(identifier.charAt(start + 1) != '%'){
-			final int end = identifier.indexOf('}', start + 1);
-			if(end == -1) return null;//invalid input
-			return new Pair<>(identifier.substring(start+1, end), end + 1);
-		}
+//		if(identifier.charAt(start + 1) != '%'){
+//			final int end = identifier.indexOf('}', start + 1);
+//			if(end == -1) return null;//invalid input
+//			return new Pair<>(identifier.substring(start+1, end), end + 1);
+//		}
 		int depth = 1;
 		for(int i=start + 2; i<identifier.length(); ++i){
 			switch(identifier.charAt(i)){
 				case '}':
 					if(--depth == 0){
-						if(identifier.charAt(i - 1) != '%') return null;//invalid input
-						return new Pair<>(PlaceholderAPI.setPlaceholders(player, identifier.substring(start + 1, i)), i + 1);
+//						if(identifier.charAt(i - 1) != '%') return null;//invalid input
+						final String innerRequest = identifier.substring(start + 1, i);
+						final int firstUnderscore = innerRequest.indexOf('_');
+						if(firstUnderscore == -1 || 
+								!PlaceholderAPI.isRegistered(innerRequest.substring(0, firstUnderscore))){
+							return new Pair<>(innerRequest, i + 1);//not a placeholder
+						}
+						final String result = PlaceholderAPI.setPlaceholders(player, "%"+innerRequest+"%");
+						return new Pair<>(result == null || result.isEmpty() ? innerRequest : result, i + 1);
 					}
 					break;
 				case '{':
