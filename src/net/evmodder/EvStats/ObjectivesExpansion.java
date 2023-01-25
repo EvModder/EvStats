@@ -1,5 +1,6 @@
 package net.evmodder.EvStats;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,8 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 				plc("score_{<obj>}_{[otherEntry]}"),
 				plc("entrypos_{<obj>}_{<#>}"),
 				plc("scorepos_{<obj>}_{<#>}"),
-				plc("score_{<obj>}_for_entrypos_{<obj>}_{<#>}")
+				plc("score_{<obj>}_for_entrypos_{<obj>}_{<#>}"),
+				plc("score_{<obj>}_for_entrypos_{<obj>}_{<#>}_{[otherEntry]}")
 		);
 	}
 
@@ -89,55 +91,91 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 		return (rank >= 0 && rank < objScores.size()) ? objScores.get(rank) : objScores.get(objScores.size()-1);
 	}
 
+	private static class Pair<T, R>{
+		public final T a; public final R b;
+		public Pair(T t, R r){a=t; b=r;}
+	}
+	private final Pair<String, Integer> parseNextExpansion(final OfflinePlayer player, final String identifier, final int start){
+		if(start + 1 > identifier.length() || identifier.charAt(start) != '{') return null;//invalid input
+		if(identifier.charAt(start + 1) != '%'){
+			final int end = identifier.indexOf('}', start + 1);
+			if(end == -1) return null;//invalid input
+			return new Pair<>(identifier.substring(start+1, end), end + 1);
+		}
+		int depth = 1;
+		for(int i=start + 2; i<identifier.length(); ++i){
+			switch(identifier.charAt(i)){
+				case '}':
+					if(--depth == 0){
+						if(identifier.charAt(i - 1) != '%') return null;//invalid input
+						return new Pair<>(PlaceholderAPI.setPlaceholders(player, identifier.substring(start + 1, i)), i + 1);
+					}
+					break;
+				case '{':
+					++depth;
+			}
+		}
+		return null;//invalid input
+	}
+
 	final int identifierLen = "objective_".length();
 	final int scorePrefixLen = "score".length();
 	final int displaynamePrefixLen = "displayname_".length();
 	final int entryposPrefixLen = "entrypos".length();
 	final int scoreposPrefixLen = "scorepos".length();
+	// Note: r`^%objective_` and r`%$` are not included in `identifier`
 	@Override public String onRequest(OfflinePlayer player, String identifier){
 		// Note: This entire function could be waayyy simpler if using Regex, but I wanted to optimize for performance.
 		if(identifier.startsWith("entrypos")){
-			//%objective_entrypos_{<obj-name>}_{<#>}%
+			//%objective_entrypos(low|high)?_{objName}_{[#]}%
 			if(identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
 			int objNameStart = entryposPrefixLen;
 			final boolean LOW_POS = identifier.startsWith("low", objNameStart);
 			if(LOW_POS) objNameStart += 3;
 			else if(identifier.startsWith("high", objNameStart)) objNameStart += 4;
 			if(!identifier.startsWith("_{", objNameStart)) return null;//invalid input
-			final int objNameEnd = identifier.indexOf('}', objNameStart);
-			if(objNameEnd == -1) return null;//invalid input
-			final String objName = identifier.substring(objNameStart+2, objNameEnd);
-			if(objNameEnd == identifier.length()-1) return getScoreAtRank(objName, LOW_POS ? -1 : 1).getEntry();
-			if(!identifier.startsWith("}_{", objNameEnd)) return null;//invalid input
-			try{
-				final int rank = Integer.parseInt(identifier.substring(objNameEnd+3, identifier.length()-1));
-				return getScoreAtRank(objName, (LOW_POS ? -rank : rank)).getEntry();
-			}
+			
+			Pair<String, Integer> textAndIdx = parseNextExpansion(player, identifier, objNameStart + 1);
+			if(textAndIdx == null) return null;//invalid input
+			final String objName = textAndIdx.a;
+			final int objNameEnd = textAndIdx.b;
+			
+			if(objNameEnd == identifier.length()) return getScoreAtRank(objName, LOW_POS ? -1 : 1).getEntry();//%objective_entrypos_{objName}%
+			if(!identifier.startsWith("_{", objNameEnd)) return null;//invalid input
+			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 2);
+			if(textAndIdx == null) return null;//invalid input
+			int rank = 1;
+			try{rank = Integer.parseInt(textAndIdx.a);}
 			catch(IllegalArgumentException e){return null;}//invalid input
+			return getScoreAtRank(objName, (LOW_POS ? -rank : rank)).getEntry();//%objective_entrypos_{objName}_{#}%
 		}
 		else if(identifier.startsWith("scorepos")){
-			//%objective_scorepos_{<obj-name>}_{<#>}%
+			//%objective_scorepos(low|high)?_{objName}_{[#]}%
 			if(identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
 			int objNameStart = scoreposPrefixLen;
 			final boolean LOW_POS = identifier.startsWith("low", objNameStart);
 			if(LOW_POS) objNameStart += 3;
 			else if(identifier.startsWith("high", objNameStart)) objNameStart += 4;
 			if(!identifier.startsWith("_{", objNameStart)) return null;//invalid input
-			final int objNameEnd = identifier.indexOf('}', objNameStart);
-			if(objNameEnd == -1) return null;//invalid input
-			final String objName = identifier.substring(objNameStart+2, objNameEnd);
-			if(objNameEnd == identifier.length()-1) return ""+getScoreAtRank(objName, LOW_POS ? -1 : 1).getScore();
-			if(!identifier.startsWith("}_{", objNameEnd)) return null;//invalid input
-			try{
-				final int rank = Integer.parseInt(identifier.substring(objNameEnd+3, identifier.length()-1));
-				return ""+getScoreAtRank(objName, (LOW_POS ? -rank : rank)).getScore();
-			}
+			
+			Pair<String, Integer> textAndIdx = parseNextExpansion(player, identifier, objNameStart + 1);
+			if(textAndIdx == null) return null;//invalid input
+			final String objName = textAndIdx.a;
+			final int objNameEnd = textAndIdx.b;
+			
+			if(objNameEnd == identifier.length()) return ""+getScoreAtRank(objName, LOW_POS ? -1 : 1).getScore();//%objective_scorepos_{objName}%
+			if(!identifier.startsWith("_{", objNameEnd)) return null;//invalid input
+			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 2);
+			if(textAndIdx == null) return null;//invalid input
+			int rank = 1;
+			try{rank = Integer.parseInt(textAndIdx.a);}
 			catch(IllegalArgumentException e){return null;}//invalid input
+			return ""+getScoreAtRank(objName, (LOW_POS ? -rank : rank)).getScore();//%objective_scorepos_{objName}_{#}%
 		}
 		else if(identifier.startsWith("score")){
-			//%objective_score(p|of)?_{?<obj-name>}?%
-			//%objective_score_{<obj-name>}_{[otherEntry]}%
-			//%objective_score_{<obj-name>}_for_entrypos_{<obj-name>}_{<#>}%
+			//%objective_score(p|of)?_{?objName}?%
+			//%objective_score_{objName}_{[otherEntry]}%
+			//%objective_score_{objName1}_for_entrypos_{objName2}_{#}%
 			int objNameStart = scorePrefixLen;
 			if(identifier.charAt(objNameStart) == 'p') ++objNameStart;
 			else if(identifier.charAt(objNameStart) == 'o') objNameStart += 2;
@@ -146,34 +184,39 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			if(identifier.charAt(objNameStart) != '{'){
 				final int entryStart = identifier.lastIndexOf('_');
 				if(entryStart > objNameStart){
-					final String entryName = identifier.substring(entryStart+1);
+					final String entry = identifier.substring(entryStart+1);
 					final String objName = identifier.substring(objNameStart, entryStart);
-					return getScore(objName, entryName);
+					return getScore(objName, entry);//%objective_score(p|of)?_objName_otherEntry%
 				}
 				final String objName = identifier.substring(objNameStart);
-				return getScore(objName, player.getName());
+				return getScore(objName, player.getName());//%objective_score(p|of)?_objName%
 			}
-			++objNameStart;
-			final int objNameEnd = identifier.indexOf('}', objNameStart);
-			if(objNameEnd == -1) return null;//invalid input
-			final String objName = identifier.substring(objNameStart, objNameEnd);
-			if(objNameEnd == identifier.length()-1) return getScore(objName, player.getName());
-			if(identifier.startsWith("_for_", objNameEnd+1)){
-				final String subRequest = identifier.substring(objNameEnd+6 +
-						(identifier.startsWith("objective_", objNameEnd+6) ? identifierLen : 0));
-				final String entry = onRequest(player, subRequest);
-				return entry == null ? null : getScore(objName, entry);
+			Pair<String, Integer> textAndIdx = parseNextExpansion(player, identifier, objNameStart);
+			if(textAndIdx == null) return null;//invalid input
+			final String objName = textAndIdx.a;
+			final int objNameEnd = textAndIdx.b;
+			
+			if(objNameEnd == identifier.length()) return getScore(objName, player.getName());//%objective_score(p|of)?_{objName}%
+			if(identifier.startsWith("_for_", objNameEnd)){
+				final String subRequest = identifier.substring(objNameEnd+5 +
+						(identifier.startsWith("objective_", objNameEnd+5) ? identifierLen : 0));
+				final String entry = onRequest(player, subRequest);//...entrypos(low|high)?_{objName}_{[#]}
+				return entry == null ? null : getScore(objName, entry);//%objective_score(p|of)?_{objName1}_for_...%
 			}
-			if(identifier.charAt(objNameEnd+1) != '_') return null;//invalid input
-			if(identifier.charAt(objNameEnd+2) != '{') return getScore(objName, identifier.substring(objNameEnd+2));
+			if(identifier.charAt(objNameEnd) != '_') return null;//invalid input
+			if(identifier.charAt(objNameEnd+1) != '{'){
+				return getScore(objName, identifier.substring(objNameEnd+1));//%objective_score(p|of)?_{objName}_otherEntry%
+			}
 			if(identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
-			return getScore(objName, identifier.substring(objNameEnd+3, identifier.length()-1));
+			return getScore(objName, parseNextExpansion(player, identifier, objNameEnd+1).a);//%objective_score(p|of)?_{objName}_{otherEntry}%
 		}
 		else if(identifier.startsWith("displayname_")){
-			//%objective_displayname_{<obj-name>}%
-			if(identifier.charAt(displaynamePrefixLen) != '{') return getDisplayName(identifier.substring(displaynamePrefixLen));
+			//%objective_displayname_{objName}%
+			if(identifier.charAt(displaynamePrefixLen) != '{'){
+				return getDisplayName(identifier.substring(displaynamePrefixLen));//%objective_displayname_objName%
+			}
 			if(identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
-			return getDisplayName(identifier.substring(displaynamePrefixLen+1, identifier.length()-1));
+			return getDisplayName(parseNextExpansion(player, identifier, displaynamePrefixLen).a);//%objective_displayname_{objName}%
 		}
 		return null;//placeholder not found
 	}
