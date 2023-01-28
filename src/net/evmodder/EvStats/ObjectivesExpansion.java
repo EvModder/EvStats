@@ -110,8 +110,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 //						if(identifier.charAt(i - 1) != '%') return null;//invalid input
 						final String innerRequest = identifier.substring(start + 1, i);
 						final int firstUnderscore = innerRequest.indexOf('_');
-						if(firstUnderscore == -1 || 
-								!PlaceholderAPI.isRegistered(innerRequest.substring(0, firstUnderscore))){
+						if(firstUnderscore == -1 || !PlaceholderAPI.isRegistered(innerRequest.substring(0, firstUnderscore))){
 							return new Pair<>(innerRequest, i + 1);//not a placeholder
 						}
 						final String result = PlaceholderAPI.setPlaceholders(player, "%"+innerRequest+"%");
@@ -149,7 +148,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			
 			if(objNameEnd == identifier.length()) return getScoreAtRank(objName, LOW_POS ? -1 : 1).getEntry();//%objective_entrypos_{objName}%
 			if(!identifier.startsWith("_{", objNameEnd)) return null;//invalid input
-			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 2);
+			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 1);
 			if(textAndIdx == null) return null;//invalid input
 			int rank = 1;
 			try{rank = Integer.parseInt(textAndIdx.a);}
@@ -172,7 +171,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			
 			if(objNameEnd == identifier.length()) return ""+getScoreAtRank(objName, LOW_POS ? -1 : 1).getScore();//%objective_scorepos_{objName}%
 			if(!identifier.startsWith("_{", objNameEnd)) return null;//invalid input
-			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 2);
+			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 1);
 			if(textAndIdx == null) return null;//invalid input
 			int rank = 1;
 			try{rank = Integer.parseInt(textAndIdx.a);}
