@@ -25,7 +25,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	@Override public String getAuthor(){return "EvModder & LethalBunny";}
 	@Override public String getName(){return "ScoreboardObjectives";}
 	@Override public String getIdentifier(){return "objective";}
-	@Override public String getVersion(){return "5.1";}
+	@Override public String getVersion(){return "5.2";}
 
 	private String plc(String str){return "%" + getIdentifier() + "_" + str + "%";}
 	@Override public List<String> getPlaceholders(){
@@ -51,7 +51,9 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 				plc("entrypos_{<obj>}_{<#>}"),
 				plc("scorepos_{<obj>}_{<#>}"),
 				plc("score_{<obj>}_for_entrypos_{<obj>}_{<#>}"),
-				plc("score_{<obj>}_for_entrypos_{<obj>}_{<#>}_{[otherEntry]}")
+				plc("score_{<obj>}_for_entrypos_{<obj>}_{<#>}_{[otherEntry]}"),
+				plc("entries_{<obj>},<all/any/size>"),
+				plc("entries_{<obj>}_for_score_{<#>},<all/any/size>")
 		);
 	}
 
@@ -62,6 +64,36 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	private String getDisplayName(String objName){
 		final Objective obj = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(objName);
 		return obj == null ? null : obj.getDisplayName();
+	}
+
+	private enum ListType{ALL, ANY, SIZE}
+	private ListType parseListType(final String name){
+		if(name.equals("all") || name.equals("list")) return ListType.ALL;
+		else if(name.equals("size") || name.equals("amount")) return ListType.SIZE;
+		else if(name.equals("first") || name.equals("any")) return ListType.ANY;
+		Bukkit.getLogger().warning("Unknown output option: "+name+", defaulting to 'any'");
+		return ListType.ANY;
+	}
+	private String getEntries(String objName, Integer integer, ListType type){
+		final Objective obj = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(objName);
+		if(obj == null) return null;
+		int size = 0;
+		ArrayList<String> entries = new ArrayList<>();
+		for(final String entry : Bukkit.getScoreboardManager().getMainScoreboard().getEntries()){
+			final Score score = obj.getScore(entry);
+			if(score.isScoreSet() && (integer == null || score.getScore() == integer)){
+				switch(type){
+					case ANY:
+						return entry;
+					case SIZE:
+						++size;
+						break;
+					case ALL:
+						entries.add(entry);
+				}
+			}
+		}
+		return type == ListType.ALL ? String.join(",", entries) : ""+size;
 	}
 
 	private int numEntries = 0;
@@ -223,6 +255,38 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			}
 			if(identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
 			return getDisplayName(parseNextExpansion(player, identifier, displaynamePrefixLen).a);//%objective_displayname_{objName}%
+		}
+		else if(identifier.startsWith("entries_")){
+			if(identifier.charAt(8) != '{'){
+				final int objNameEnd = identifier.lastIndexOf(',');
+				return getEntries(identifier.substring(8, objNameEnd), /*score=*/null, parseListType(identifier.substring(objNameEnd+1)));
+			}
+			Pair<String, Integer> textAndIdx = parseNextExpansion(player, identifier, 8);
+			if(textAndIdx == null) return null;//invalid input
+			final String objName = textAndIdx.a;
+			final int objNameEnd = textAndIdx.b;
+			if(identifier.startsWith(",", objNameEnd)) return getEntries(objName, /*score=*/null, parseListType(identifier.substring(objNameEnd+1)));
+			else if(!identifier.startsWith("_for_score_", objNameEnd)) return null;//invalid input
+			else if(identifier.charAt(objNameEnd+/*_for_score_.size=*/11) != '{'){
+				int scoreEnd = identifier.lastIndexOf(',');
+				ListType type = ListType.ANY;
+				if(scoreEnd == -1) scoreEnd = identifier.length();
+				else type = parseListType(identifier.substring(scoreEnd+1));
+				final String scoreStr = identifier.substring(objNameEnd+/*_for_score_.size=*/11, scoreEnd);
+				int score = 1;
+				try{score = Integer.parseInt(scoreStr);}
+				catch(IllegalArgumentException e){return null;}//invalid input
+				return getEntries(objName, score, type);
+			}
+			else{
+				textAndIdx = parseNextExpansion(player, identifier, objNameEnd+/*_for_score_.size=*/11);
+				if(textAndIdx == null) return null;//invalid input
+				int score = 1;
+				try{score = Integer.parseInt(textAndIdx.a);}
+				catch(IllegalArgumentException e){return null;}//invalid input
+				if(identifier.charAt(textAndIdx.b) != ',') return getEntries(objName, score, ListType.ANY);
+				return getEntries(objName, score, parseListType(identifier.substring(textAndIdx.b+1)));
+			}
 		}
 		return null;//placeholder not found
 	}
