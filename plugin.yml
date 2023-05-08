@@ -12,7 +12,7 @@ softdepend: [DropHeads, PlayerHeads, HorseOwners, ChatManager]
 commands:
   stat:
     description: Display a given statistic on the scoreboard
-    usage: /stat <stat> [on/off/delay(default=5s)]
+    usage: /stat <stat> [time] [entry]
     aliases: [stats,statistic,statistics]
     permission: evstats.command.statistics
     permission-message: You do not have permission to do this.

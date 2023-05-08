@@ -1,41 +1,50 @@
 ### WARNING:
 # Once a scoreboard has been registered by the plugin, any changes to its name
-# will need to be done manually ingame with /scoreboard objectives modify
-# Please be sure to make any desired changes in translations.yml beforehand.
+# will need to be done manually ingame with `/scoreboard objectives modify`
+# Thus, please make desired changes in translations.yml before registering.
 
+
+#----------------------------------------------------------------------------#
+#                                Player Stats                                #
+#----------------------------------------------------------------------------#
 # Create a scoreboard for every vanilla statistic
 add-scoreboards-for-vanilla-statistics: false
-vanilla-statistics-scoreboard-prefix: 'zstats-'
+vanilla-statistics-scoreboard-prefix: 'pstats-'
 
 # Create scoreboards for select Bukkit-supported PlayerEvents
 add-scoreboards-for-bukkit-player-events: false
-bukkit-player-events-scoreboard-prefix: 'zstats-'
+bukkit-events-scoreboard-prefix: 'pstats-'
 
 # Create a scoreboard counting total advancements
 add-scoreboard-for-advancements: false
 advancements-counted: [story, adventure, nether, end, husbandry]
-advancements-scoreboard-prefix: 'zstats-'
+advancements-scoreboard-prefix: 'pstats-'
 
 # Create a scoreboard for number of chat messages sent
 add-scoreboard-for-chats: false
-chat-scoreboard-prefix: 'zstats-'
+chat-scoreboard-prefix: 'pstats-'
 # TODO: Planned integration with chat plugin(s) for statistics related to swearing, links, etc
 
 # Create a scoreboard for number of commands sent
 add-scoreboard-for-commands: false
-command-scoreboard-prefix: 'zstats-'
-
-# Create scoreboards of items destroyed (for each item type)
-add-scoreboards-for-items-destroyed: false
-items-scoreboard-prefix: 'istats-'
-
-# Create scoreboards for equine jump, speed, & health stats
-# REQUIRED PLUGIN: HorseHowners
-add-scoreboards-for-horse-attributes: false
-horse-scoreboard-prefix: ''
-
+command-scoreboard-prefix: 'pstats-'
 
 # Create scoreboards for counting mobs beheaded
 # REQUIRED PLUGIN: DropHeads or PlayerHeads
 add-scoreboards-for-mobs-beheaded: false
-behead-scoreboard-prefix: 'dstats-'
+behead-scoreboard-prefix: 'pstats-'
+
+#----------------------------------------------------------------------------#
+#                                 Item Stats                                 #
+#----------------------------------------------------------------------------#
+# Create scoreboards of items destroyed (for each item type)
+add-scoreboards-for-items-destroyed: false
+items-scoreboard-prefix: 'istats-'
+
+#----------------------------------------------------------------------------#
+#                                Equine Stats                                #
+#----------------------------------------------------------------------------#
+# Create scoreboards for equine jump, speed, & health stats
+# REQUIRED PLUGIN: HorseHowners
+add-scoreboards-for-horse-attributes: false
+horse-scoreboard-prefix: 'hstats-'

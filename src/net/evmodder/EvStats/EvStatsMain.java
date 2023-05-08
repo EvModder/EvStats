@@ -5,6 +5,7 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
+import commands.CommandStat;
 import net.evmodder.EvLib.EvPlugin;
 import net.evmodder.EvLib.FileIO;
 import net.evmodder.EvLib.extras.TextUtils;
@@ -73,7 +74,7 @@ public class EvStatsMain extends EvPlugin {
 //		FileIO.deleteFile("translations-temp-DELETE.yml");
 
 		if(config.getBoolean("add-scoreboards-for-vanilla-statistics", false)) new VanillaPlayerStats(this);
-		if(config.getBoolean("add-scoreboards-for-bukkit-player-events", false)) new BukkitPlayerEventStats(this);
+		if(config.getBoolean("add-scoreboards-for-bukkit-events", false)) new BukkitPlayerEventStats(this);
 		if(config.getBoolean("add-scoreboards-for-items-destroyed", false)) new ItemStats(this);
 		if(config.getBoolean("add-scoreboard-for-chats", false)) new ChatStats(this);
 		if(config.getBoolean("add-scoreboard-for-commands", false)) new CommandStats(this);
