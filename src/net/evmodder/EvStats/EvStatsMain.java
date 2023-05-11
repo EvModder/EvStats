@@ -87,6 +87,7 @@ public class EvStatsMain extends EvPlugin {
 		)){
 			new BeheadStats(this);
 		}
+		if(config.getBoolean("add-scoreboards-for-votes", false) && checkExists("com.vexsoftware.votifier.model.VotifierEvent")) new VoteStats(this);
 		new CommandStat(this);
 
 //		if(getServer().getPluginManager().getPlugin("PlaceholderAPI") != null){
@@ -108,7 +109,7 @@ public class EvStatsMain extends EvPlugin {
 		}}.runTaskLater(this, 20*5);
 		if(objective == null) addObjectiveCmds.add("scoreboard objectives add "+name+" "+criteria+" "+displayName.toString());
 		else{
-			getLogger().info("Modifying displayname for objective: "+name);
+			getLogger().info("Modifying displayname for '"+name+"' from: '"+objective.getDisplayName()+"' to '"+displayName.toString()+"'");
 			addObjectiveCmds.add("scoreboard objectives modify "+name+" displayname "+displayName.toString());
 		}
 		return true;

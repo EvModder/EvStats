@@ -7,7 +7,7 @@ version: 1.0
 api-version: 1.13
 
 # IIUC, softdepend will prefer loading these plugins BEFORE loading EvStats
-softdepend: [DropHeads, PlayerHeads, HorseOwners, ChatManager]
+softdepend: [DropHeads, PlayerHeads, HorseOwners, ChatManager, Votifier]
 
 commands:
   stat:

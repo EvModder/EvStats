@@ -2,6 +2,7 @@
 # Be sure to edit anything here before registering the scoreboards!
 
 chat-scoreboard-name: "${gamerule.category.chat}"
+vote-scoreboard-name: "Votes"
 command-scoreboard-name: "Commands Sent"
 advancement-scoreboard-name: "${key.advancements}"
 behead-scoreboard-name: "Beheadings"

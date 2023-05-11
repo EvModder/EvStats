@@ -29,10 +29,15 @@ chat-scoreboard-prefix: 'pstats-'
 add-scoreboard-for-commands: false
 command-scoreboard-prefix: 'pstats-'
 
-# Create scoreboards for counting mobs beheaded
+# Create scoreboards for number of mobs beheaded
 # REQUIRED PLUGIN: DropHeads or PlayerHeads
 add-scoreboards-for-mobs-beheaded: false
 behead-scoreboard-prefix: 'pstats-'
+
+# Create a scoreboard for number of votes
+# REQUIRED PLUGIN: Votifier
+add-scoreboards-for-votes: false
+vote-scoreboard-prefix: 'pstats-'
 
 #----------------------------------------------------------------------------#
 #                                 Item Stats                                 #
