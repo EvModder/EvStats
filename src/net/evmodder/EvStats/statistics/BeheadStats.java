@@ -37,7 +37,7 @@ public class BeheadStats{
 
 	public BeheadStats(EvStatsMain pl){
 		this.pl = pl;
-		PREFIX = pl.getConfig().getString("behead-scoreboard-prefix", "dstats-");
+		PREFIX = pl.getConfig().getString("behead-scoreboard-prefix", "pstats-");
 		// Register behead scoreboards
 		if(pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"beheaded", Criteria.DUMMY, pl.loadTranslationComp("behead-scoreboard-name"))){
 			pl.getLogger().info("Registering all beheading scoreboards (may take a minute)...");

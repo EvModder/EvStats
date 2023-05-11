@@ -13,7 +13,7 @@ import net.evmodder.EvStats.EvStatsMain;
 */
 public class ChatStats{
 	public ChatStats(EvStatsMain pl){
-		final String PREFIX = pl.getConfig().getString("chat-scoreboard-prefix", "zstats-");
+		final String PREFIX = pl.getConfig().getString("chat-scoreboard-prefix", "pstats-");
 		final String OBJ_NAME = PREFIX + "chats";
 		pl.registerObjectiveIfDoesNotExist5sDelay(OBJ_NAME, Criteria.DUMMY, pl.loadTranslationComp("chat-scoreboard-name"));
 

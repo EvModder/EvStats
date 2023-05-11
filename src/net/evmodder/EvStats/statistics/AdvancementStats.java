@@ -24,7 +24,7 @@ public class AdvancementStats{
 				&& ADVANCEMENTS_COUNTED.contains(adv.getKey().getKey().substring(0, i));
 	}
 	public AdvancementStats(EvStatsMain pl){
-		PREFIX = pl.getConfig().getString("advancements-scoreboard-prefix", "zstats-");
+		PREFIX = pl.getConfig().getString("advancements-scoreboard-prefix", "pstats-");
 		ADVANCEMENTS_COUNTED = new HashSet<>(pl.getConfig().getStringList("advancements-counted"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"advancements", Criteria.DUMMY, pl.loadTranslationComp("advancement-scoreboard-name"));
 

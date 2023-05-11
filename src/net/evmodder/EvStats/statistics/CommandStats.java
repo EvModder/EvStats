@@ -14,7 +14,7 @@ import net.evmodder.EvStats.EvStatsMain;
 */
 public class CommandStats{
 	public CommandStats(EvStatsMain pl){
-		final String PREFIX = pl.getConfig().getString("command-scoreboard-prefix", "zstats-");
+		final String PREFIX = pl.getConfig().getString("command-scoreboard-prefix", "pstats-");
 		final String OBJ_NAME = PREFIX + "commands";
 		pl.registerObjectiveIfDoesNotExist5sDelay(OBJ_NAME, Criteria.DUMMY, pl.loadTranslationComp("command-scoreboard-name"));
 

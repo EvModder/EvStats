@@ -27,7 +27,7 @@ public class BukkitPlayerEventStats{
 	}
 
 	public BukkitPlayerEventStats(EvStatsMain pl){
-		final String PREFIX = pl.getConfig().getString("bukkit-player-events-scoreboard-prefix", "zstats-");
+		final String PREFIX = pl.getConfig().getString("bukkit-player-events-scoreboard-prefix", "pstats-");
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"interact_entity", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.interact_entity"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"interact_block", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.interact_block"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"mined", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.mined"));

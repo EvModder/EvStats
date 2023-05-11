@@ -15,8 +15,8 @@ import net.evmodder.EvStats.EvStatsMain;
 */
 public class VanillaPlayerStats{
 	public VanillaPlayerStats(EvStatsMain pl){
-		final String PREFIX = pl.getConfig().getString("vanilla-statistics-scoreboard-prefix", "zstats-");
-		if(pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"dummy", Criteria.DUMMY, new RawTextComponent("Zstats Test"))){
+		final String PREFIX = pl.getConfig().getString("vanilla-statistics-scoreboard-prefix", "pstats-");
+		if(pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"dummy", Criteria.DUMMY, new RawTextComponent("Test"))){
 			pl.getLogger().info("Registering all vanilla statistics as scoreboards (may take a minute)...");
 
 			// Simple stats (excluding trigger & dummy)
