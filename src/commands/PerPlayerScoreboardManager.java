@@ -169,7 +169,7 @@ public final class PerPlayerScoreboardManager{
 	
 	private Scoreboard getTempScoreboard(UUID viewer, Objective obj, String targetEntry){
 		Scoreboard tempSB = activeTempScoreboards.get(viewer);
-		if(tempSB == null || tempSB.getTeam("is_obj_sb") != null){
+		if(tempSB == null || tempSB.getTeam("is_obj_sb") != null || tempSB.getObjective(obj.getName()) == null){
 			tempSB = pl.getServer().getScoreboardManager().getNewScoreboard();
 			final Objective objCopy = tempSB.registerNewObjective(obj.getName(), obj.getTrackedCriteria(), obj.getDisplayName());
 			objCopy.setDisplaySlot(DisplaySlot.SIDEBAR);
