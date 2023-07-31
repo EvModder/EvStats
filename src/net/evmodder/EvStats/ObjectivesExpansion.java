@@ -107,8 +107,8 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			return null;
 		}
 		final Set<String> entries = Bukkit.getScoreboardManager().getMainScoreboard().getEntries();
-		List<Score> objScores = sortedScores.get(obj);
-		if(objScores == null || entries.size() > numEntries){
+		List<Score> objScores;
+		if(entries.size() != numEntries || (objScores=sortedScores.get(obj)) == null){
 			numEntries = entries.size();
 			objScores = new ArrayList<>();
 			for(String entry : entries){
