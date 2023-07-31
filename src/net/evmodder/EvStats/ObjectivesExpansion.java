@@ -122,6 +122,25 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 		//rank += (rank > 0 ? -1 : objScores.size()); // If sorted descending, use this
 		return (rank >= 0 && rank < objScores.size()) ? objScores.get(rank) : objScores.get(objScores.size()-1);
 	}
+	private int getRank(String objName, String entry){
+		final Objective obj = Bukkit.getScoreboardManager().getMainScoreboard().getObjective(objName);
+		if(obj == null){
+			Bukkit.getLogger().warning("Unknown objective: "+objName);
+			return -1;
+		}
+		final Score score = obj.getScore(entry);
+		if(!score.isScoreSet()) return -1;
+		final int target = score.getScore();
+		getScoreAtRank(objName, -1);
+		int low = 1, high = numEntries+1;
+		//int r = numEntries/2, s = getScoreAtRank(objName, r+1).getScore();
+		while(true){
+			final int r = (low+high)/2, s = getScoreAtRank(objName, r).getScore();
+			if(s < target) high = r;
+			else if(s > target) low = r;
+			else return r;
+		}
+	}
 
 	private static class Pair<T, R>{
 		public final T a; public final R b;
@@ -168,9 +187,9 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			//%objective_entrypos(low|high)?_{objName}_{[#]}%
 			if(identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
 			int objNameStart = entryposPrefixLen;
-			final boolean LOW_POS = identifier.startsWith("low", objNameStart);
-			if(LOW_POS) objNameStart += 3;
-			else if(identifier.startsWith("high", objNameStart)) objNameStart += 4;
+			final boolean NO_POS, LOW_POS = identifier.startsWith("low", objNameStart);
+			if(LOW_POS){objNameStart += 3; NO_POS = true;}
+			else if(NO_POS=identifier.startsWith("high", objNameStart)) objNameStart += 4;
 			if(!identifier.startsWith("_{", objNameStart)) return null;//invalid input
 			
 			Pair<String, Integer> textAndIdx = parseNextExpansion(player, identifier, objNameStart + 1);
@@ -178,13 +197,16 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			final String objName = textAndIdx.a;
 			final int objNameEnd = textAndIdx.b;
 			
-			if(objNameEnd == identifier.length()) return getScoreAtRank(objName, LOW_POS ? -1 : 1).getEntry();//%objective_entrypos_{objName}%
+			if(objNameEnd == identifier.length()) return NO_POS
+					? ""+getRank(objName, player.getName())//%objective_entrypos_{objName}%
+					: getScoreAtRank(objName, LOW_POS ? -1 : 1).getEntry();//%objective_entrypos(low|high)_{objName}%
 			if(!identifier.startsWith("_{", objNameEnd)) return null;//invalid input
 			textAndIdx = parseNextExpansion(player, identifier, objNameEnd + 1);
 			if(textAndIdx == null) return null;//invalid input
-			int rank = 1;
+			final int rank;
 			try{rank = Integer.parseInt(textAndIdx.a);}
 			catch(IllegalArgumentException e){return null;}//invalid input
+			if(rank == 0) return null;//invalid input
 			return getScoreAtRank(objName, (LOW_POS ? -rank : rank)).getEntry();//%objective_entrypos_{objName}_{#}%
 		}
 		else if(identifier.startsWith("scorepos")){
@@ -287,6 +309,24 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 				if(identifier.charAt(textAndIdx.b) != ',') return getEntries(objName, score, ListType.ANY);
 				return getEntries(objName, score, parseListType(identifier.substring(textAndIdx.b+1)));
 			}
+		}
+		else if(identifier.startsWith("rank_")){
+			//%objective_rank_{objName}%
+			if(identifier.charAt(5) != '{'){
+				return ""+getRank(identifier.substring(5), player.getName());//%objective_rank_objName%
+			}
+			Pair<String, Integer> textAndIdx = parseNextExpansion(player, identifier, 5);
+			if(textAndIdx == null) return null;//invalid input
+			final String objName = textAndIdx.a;
+			final int objNameEnd = textAndIdx.b;
+			
+			if(objNameEnd == identifier.length()) return ""+getRank(objName, player.getName());//%objective_rank_{objName}%
+			if(identifier.charAt(objNameEnd) != '_') return null;//invalid input
+			if(identifier.charAt(objNameEnd+1) != '{'){
+				return ""+getRank(objName, identifier.substring(objNameEnd+1));//%objective_rank_{objName}_otherEntry%
+			}
+			if(identifier.charAt(objNameEnd+1) != '{' || identifier.charAt(identifier.length()-1) != '}') return null;//invalid input
+			return ""+getRank(objName, parseNextExpansion(player, identifier, objNameEnd+1).a);//%objective_rank_{objName}_{otherEntry}%
 		}
 		return null;//placeholder not found
 	}
