@@ -41,7 +41,7 @@ public class BukkitPlayerEventStats{
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"crafted", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.crafted"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"harvested", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.harvested"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"loot_generated", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.loot_generated"));
-		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"brushed", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.brushed"));
+//		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"brushed", Criteria.DUMMY, pl.loadTranslationComp("bukkit-player-events.brushed"));//TODO
 
 		// Register listener for various PlayerEvents
 		pl.getServer().getPluginManager().registerEvents(new Listener(){
@@ -55,7 +55,7 @@ public class BukkitPlayerEventStats{
 			final Objective craftedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"crafted");
 			final Objective harvestedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"harvested");
 			final Objective loot_generatedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"loot_generated");
-			final Objective brushedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"brushed");
+//			final Objective brushedObj = pl.getServer().getScoreboardManager().getMainScoreboard().getObjective(PREFIX+"brushed");//TODO
 			@EventHandler(ignoreCancelled = true) public void onEntityRightClick(PlayerInteractEntityEvent evt){
 				incrementScore(evt.getPlayer().getName(), interact_entityObj);
 			}
