@@ -17,6 +17,7 @@ item-statistics:
   explosion: "Items lost to explosion"
   lightning: "Items lost to lightning"
   anvil: "Items lost to anvil smush"
+  smelt: "Items Smelted"
   unknown: "Items lost to UNKNOWN DamageCause (!)"
 
 equine-statistics:
@@ -85,3 +86,6 @@ bukkit-player-events:
   picked_up: "Items Picked Up"
   consumed: "Items Consumed"
   crafted: "Items Crafted"
+  harvested: "Blocks Harvested"
+  loot_generated: "Loot Generated"
+  brushed: "Sand/Gravel Brushed"

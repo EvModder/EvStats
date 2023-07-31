@@ -39,12 +39,27 @@ behead-scoreboard-prefix: 'pstats-'
 add-scoreboards-for-votes: false
 vote-scoreboard-prefix: 'pstats-'
 
+
 #----------------------------------------------------------------------------#
 #                                 Item Stats                                 #
 #----------------------------------------------------------------------------#
 # Create scoreboards of items destroyed (for each item type)
 add-scoreboards-for-items-destroyed: false
 items-scoreboard-prefix: 'istats-'
+
+
+#TODO: Block Stats? : BlockBurnEvent, BlockDispenseEvent, BlockDropItemEvent, BlockExpEvent, BlockExplodeEvent, BlockFadeEvent, BlockFertilizeEvent,
+#BlockFromToEvent, BlockGrowEvent, BlockIgniteEvent, BlockReceiveGameEvent, BlockRedstoneEvent, BlockShearEntityEvent, BrewEvent, BrewingStandFuelEvent,
+#FurnaceBurnEvent, LeavesDecayEvent, MoistureChangeEvent, NotePlayEvent, SignChangeEvent, SpongeAbsorbEvent, TNTPrimeEvent
+
+
+#----------------------------------------------------------------------------#
+#                                 Death Stats                                #
+#----------------------------------------------------------------------------#
+# Register scoreboards for different death types
+add-scoreboard-for-death-types: false
+death-scoreboard-prefix: 'dstats-'
+
 
 #----------------------------------------------------------------------------#
 #                                Equine Stats                                #

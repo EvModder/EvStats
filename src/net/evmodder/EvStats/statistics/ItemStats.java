@@ -7,6 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockCookEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
@@ -23,9 +24,9 @@ import net.evmodder.EvStats.EvStatsMain;
 * @author EvModder/EvDoc (evdoc at altcraft.net)
 */
 public class ItemStats{
-	final String PREFIX;
-	
-	public ItemStats(EvStatsMain pl){
+	final private String PREFIX;
+
+	public ItemStats(EvStatsMain pl, Class<? extends Event> entityRemoveEvent){
 		Scoreboard board = pl.getServer().getScoreboardManager().getMainScoreboard();
 		PREFIX = pl.getConfig().getString("items-scoreboard-prefix", "istats-");
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"fire", Criteria.DUMMY, pl.loadTranslationComp("item-statistics.fire"));
@@ -36,15 +37,39 @@ public class ItemStats{
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"explosion", Criteria.DUMMY, pl.loadTranslationComp("item-statistics.explosion"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"lightning", Criteria.DUMMY, pl.loadTranslationComp("item-statistics.lightning"));
 		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"anvil", Criteria.DUMMY, pl.loadTranslationComp("item-statistics.anvil"));
+		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"smelt", Criteria.DUMMY, pl.loadTranslationComp("item-statistics.smelt"));
 //		pl.registerObjectiveIfDoesNotExist5sDelay(PREFIX+"unknown", Criteria.DUMMY, pl.loadTranslationComp("item-statistics.unknown"));
 
-		
 		pl.getServer().getPluginManager().registerEvents(new Listener(){
-			void incrDeathScore(String statName, ItemStack item){
+			void incrItemScore(String statName, ItemStack item){
 				final String matNameL = item.getType().name().toLowerCase();
 				Score newScoreObject = board.getObjective(statName).getScore(matNameL);
 				newScoreObject.setScore((newScoreObject.isScoreSet() ? newScoreObject.getScore() : 0) + item.getAmount());
 			}
+			{//"constructor"
+				pl.getServer().getPluginManager().registerEvent(entityRemoveEvent, this, EventPriority.MONITOR, new EventExecutor(){
+					@Override public void execute(Listener listener, Event event){
+						//pl.getLogger().info("entity remove from world event");
+						Entity entity = ((EntityEvent)event).getEntity();
+						if(entity instanceof Item && entity.getLocation().getY() <
+								(entity.getWorld().getEnvironment() == Environment.NORMAL ? -127 : -63)){
+							//TODO: && !event.isCancelled()?
+							//pl.getLogger().info("item < critical y lvl: "+((Item)entity).getItemStack().getType());
+							incrItemScore(PREFIX+"void", ((Item)entity).getItemStack());
+						}
+					}
+				}, pl);
+			}
+			@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+			public void itemDespawnEvent(ItemDespawnEvent evt){
+//				pl.getLogger().info("Item Despawn: "+TextUtils.locationToString(evt.getEntity().getLocation())+",
+				//type: "+evt.getEntity().getItemStack().getType().name().toLowerCase());
+				incrItemScore(PREFIX+"despawn", evt.getEntity().getItemStack());
+				evt.getEntity().remove();
+			}
+			@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+			public void onItemSmelt(BlockCookEvent evt){incrItemScore(PREFIX+"smelt", evt.getSource());}
+
 			String getObjectiveNameFromDamageCause(DamageCause cause){
 				switch(cause){
 					case CONTACT: return "cactus";
@@ -62,40 +87,13 @@ public class ItemStats{
 					}
 				}
 			}
-			{//"constructor"
-				try{
-					@SuppressWarnings("unchecked")
-					Class<? extends Event> clazz = (Class<? extends Event>)
-						Class.forName("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");
-					pl.getServer().getPluginManager().registerEvent(clazz, this, EventPriority.MONITOR, new EventExecutor(){
-						@Override public void execute(Listener listener, Event event){
-							//pl.getLogger().info("entity remove from world event");
-							Entity entity = ((EntityEvent)event).getEntity();
-							if(entity instanceof Item && entity.getLocation().getY() <
-									 (entity.getWorld().getEnvironment() == Environment.NORMAL ? -127 : -63)){
-								//TODO: && !event.isCancelled()?
-								//pl.getLogger().info("item < critical y lvl: "+((Item)entity).getItemStack().getType());
-								incrDeathScore(PREFIX+"void", ((Item)entity).getItemStack());
-							}
-						}
-					}, pl);
-				}
-				catch(ClassNotFoundException e){}
-				catch(IllegalStateException e){pl.getLogger().warning("reload issue?: "); e.printStackTrace();}
-				
-			}
-			@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-			public void itemDespawnEvent(ItemDespawnEvent evt){
-//				pl.getLogger().info("Item Despawn: "+TextUtils.locationToString(evt.getEntity().getLocation())+", type: "+evt.getEntity().getItemStack().getType().name().toLowerCase());
-				incrDeathScore(PREFIX+"despawn", evt.getEntity().getItemStack());
-				evt.getEntity().remove();
-			}
 			@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 			public void onItemMiscDamage(EntityDamageEvent evt){
 				if(evt.getEntity() instanceof Item){
-					//pl.getLogger().info("Item damage event: "+evt.getCause().name()/+" (item cur health: "+NBTTagUtils.getTag(evt.getEntity()).getShort("Health")+")");
+					//pl.getLogger().info("Item damage event: "+evt.getCause().name()
+					//+" (item cur health: "+NBTTagUtils.getTag(evt.getEntity()).getShort("Health")+")");
 					if(NBTTagUtils.getTag(evt.getEntity()).getShort("Health") <= evt.getFinalDamage()){
-						incrDeathScore(PREFIX+getObjectiveNameFromDamageCause(evt.getCause()), ((Item)evt.getEntity()).getItemStack());
+						incrItemScore(PREFIX+getObjectiveNameFromDamageCause(evt.getCause()), ((Item)evt.getEntity()).getItemStack());
 						evt.getEntity().remove();
 					}
 				}

@@ -2,6 +2,7 @@ package net.evmodder.EvStats;
 
 import java.util.ArrayList;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.event.Event;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
@@ -63,6 +64,11 @@ public class EvStatsMain extends EvPlugin {
 		try{Class.forName(className); return true;}
 		catch(ClassNotFoundException e){return false;}
 	}
+	@SuppressWarnings("unchecked")
+	private Class<? extends Event> getEntityRemoveFromWorldEvent(){
+		try{return (Class<? extends Event>)Class.forName("com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent");}
+		catch(ClassNotFoundException e){return null;}
+	}
 
 	@Override public void onEvEnable(){
 		//---------- <Load translations> ----------------------------------------------------------------------
@@ -73,9 +79,12 @@ public class EvStatsMain extends EvPlugin {
 //		translationsFile.setDefaults(embeddedTranslationsFile);
 //		FileIO.deleteFile("translations-temp-DELETE.yml");
 
+		final Class<? extends Event> clazz = getEntityRemoveFromWorldEvent();
+
 		if(config.getBoolean("add-scoreboards-for-vanilla-statistics", false)) new VanillaPlayerStats(this);
-		if(config.getBoolean("add-scoreboards-for-bukkit-events", false)) new BukkitPlayerEventStats(this);
-		if(config.getBoolean("add-scoreboards-for-items-destroyed", false)) new ItemStats(this);
+		if(config.getBoolean("add-scoreboards-for-bukkit-player-events", false)) new BukkitPlayerEventStats(this);
+		if(config.getBoolean("add-scoreboards-for-items-destroyed", false)) new ItemStats(this, clazz);
+		if(config.getBoolean("add-scoreboard-for-death-types", false) && clazz != null) new DeathStats(this);
 		if(config.getBoolean("add-scoreboard-for-chats", false)) new ChatStats(this);
 		if(config.getBoolean("add-scoreboard-for-commands", false)) new CommandStats(this);
 		if(config.getBoolean("add-scoreboard-for-advancements", false)) new AdvancementStats(this);
@@ -109,7 +118,8 @@ public class EvStatsMain extends EvPlugin {
 		}}.runTaskLater(this, 20*5);
 		if(objective == null) addObjectiveCmds.add("scoreboard objectives add "+name+" "+criteria+" "+displayName.toString());
 		else{
-			getLogger().info("Modifying displayname for '"+name+"' from: '"+objective.getDisplayName()+"' to '"+displayName.toString()+"'");
+			getLogger().info("Modifying displayname for '"+name+"' from: '"+objective.getDisplayName()+"' to '"+displayName.toPlainText()
+				+"', more formally to: "+displayName.toString());
 			addObjectiveCmds.add("scoreboard objectives modify "+name+" displayname "+displayName.toString());
 		}
 		return true;
