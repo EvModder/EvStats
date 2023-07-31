@@ -25,7 +25,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	@Override public String getAuthor(){return "EvModder & LethalBunny";}
 	@Override public String getName(){return "ScoreboardObjectives";}
 	@Override public String getIdentifier(){return "objective";}
-	@Override public String getVersion(){return "5.3";}
+	@Override public String getVersion(){return "6.0";}
 
 	private String plc(String str){return "%" + getIdentifier() + "_" + str + "%";}
 	@Override public List<String> getPlaceholders(){
