@@ -26,7 +26,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	@Override public String getAuthor(){return "EvModder & LethalBunny";}
 	@Override public String getName(){return "ScoreboardObjectives";}
 	@Override public String getIdentifier(){return "objective";}
-	@Override public String getVersion(){return "6.1";}
+	@Override public String getVersion(){return "6.2";}
 
 	private String plc(String str){return "%" + getIdentifier() + "_" + str + "%";}
 	@Override public List<String> getPlaceholders(){
@@ -96,16 +96,19 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	private Score getScoreAtRank(final Objective obj, int rank){
 		final Set<String> entries = Bukkit.getScoreboardManager().getMainScoreboard().getEntries();
 		List<Score> objScores;
-		if(entries.size() != numEntries || (objScores=sortedScores.get(obj)) == null){
+		synchronized(sortedScores){objScores=sortedScores.get(obj);}
+		if(entries.size() != numEntries || objScores == null){
 			numEntries = entries.size();
 			objScores = new ArrayList<>();
 			for(String entry : entries){
 				final Score score = obj.getScore(entry);
 				if(score.isScoreSet()) objScores.add(score);
 			}
-			sortedScores.put(obj, objScores);
+			synchronized(sortedScores){sortedScores.put(obj, objScores);}
 		}
-		/*if(!cacheExpirationTask) */objScores.sort(Comparator.comparingInt(e -> e.getScore()));
+		/*if(!cacheExpirationTask) */
+		synchronized(sortedScores){objScores.sort(Comparator.comparingInt(e -> e.getScore()));}
+
 		rank = (rank > 0 ? objScores.size() : -1) - rank; // Currently we sort ascending 
 		//rank += (rank > 0 ? -1 : objScores.size()); // If sorted descending, use this
 		return (rank >= 0 && rank < objScores.size()) ? objScores.get(rank) : objScores.get(objScores.size()-1);
