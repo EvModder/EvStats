@@ -126,7 +126,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			if(ss < target) high = r;
 			else if(ss > target) low = r;
 			else{
-				final int cmpE = s.getEntry().compareTo(score.getEntry());
+				final int cmpE = s.getEntry().compareToIgnoreCase(score.getEntry());
 				if(cmpE < 0) low = r;
 				else if(cmpE > 0) high = r;
 				else return r;
