@@ -116,6 +116,7 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 	private int getRank(final Objective obj, final Score score){
 		if(!score.isScoreSet()) return -999;
 		final int target = score.getScore();
+		final String entry = score.getEntry();
 		getScoreAtRank(obj, -1);
 		int low = 1, high = numEntries+1;
 		//int r = numEntries/2, s = getScoreAtRank(objName, r+1).getScore();
@@ -126,10 +127,17 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 			if(ss < target) high = r;
 			else if(ss > target) low = r;
 			else{
-				final int cmpE = s.getEntry().compareToIgnoreCase(score.getEntry());
-				if(cmpE < 0) low = r;
-				else if(cmpE > 0) high = r;
-				else return r;
+				if(s.getEntry().equals(entry)) return r;
+				for(int i = r + 1; i < high; ++i){
+					final Score testScore = getScoreAtRank(obj, i);
+					if(testScore.getScore() != target) break;
+					if(testScore.getEntry().equals(entry)) return i;
+				}
+				for(int i = r - 1; i > low; --i){
+					final Score testScore = getScoreAtRank(obj, i);
+					if(testScore.getScore() != target) break;
+					if(testScore.getEntry().equals(entry)) return i;
+				}
 			}
 		}
 	}
