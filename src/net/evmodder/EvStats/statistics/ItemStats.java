@@ -47,7 +47,8 @@ public class ItemStats{
 				newScoreObject.setScore((newScoreObject.isScoreSet() ? newScoreObject.getScore() : 0) + item.getAmount());
 			}
 			{//"constructor"
-				pl.getServer().getPluginManager().registerEvent(entityRemoveEvent, this, EventPriority.MONITOR, new EventExecutor(){
+				if(entityRemoveEvent != null) pl.getServer().getPluginManager().registerEvent(entityRemoveEvent, this, EventPriority.MONITOR,
+				new EventExecutor(){
 					@Override public void execute(Listener listener, Event event){
 						//pl.getLogger().info("entity remove from world event");
 						Entity entity = ((EntityEvent)event).getEntity();

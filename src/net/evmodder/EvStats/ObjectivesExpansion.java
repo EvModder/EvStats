@@ -94,9 +94,9 @@ public class ObjectivesExpansion extends PlaceholderExpansion{
 //	private final long cacheExpirationTicks = 20;
 //	private BukkitRunnable cacheExpirationTask;
 	private Score getScoreAtRank(final Objective obj, int rank){
-		final Set<String> entries = Bukkit.getScoreboardManager().getMainScoreboard().getEntries();
 		List<Score> objScores;
 		synchronized(sortedScores){objScores=sortedScores.get(obj);}
+		final Set<String> entries = Bukkit.getScoreboardManager().getMainScoreboard().getEntries();
 		if(entries.size() != numEntries || objScores == null){
 			numEntries = entries.size();
 			objScores = new ArrayList<>();
