@@ -17,7 +17,7 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
-import net.evmodder.EvLib.extras.NBTTagUtils;
+import net.evmodder.EvLib.bukkit.NBTTagUtils;
 import net.evmodder.EvStats.EvStatsMain;
 
 /**

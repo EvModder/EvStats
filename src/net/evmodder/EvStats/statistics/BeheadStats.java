@@ -13,7 +13,7 @@ import org.bukkit.plugin.EventExecutor;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
-import net.evmodder.EvLib.extras.TellrawUtils.TranslationComponent;
+import net.evmodder.EvLib.bukkit.TellrawUtils.TranslationComponent;
 import net.evmodder.EvStats.EvStatsMain;
 
 /**

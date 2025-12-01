@@ -8,7 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
-import net.evmodder.EvLib.EvUtils;
+import net.evmodder.EvLib.bukkit.EvUtils;
 import net.evmodder.EvStats.EvStatsMain;
 
 /**

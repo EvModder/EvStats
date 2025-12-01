@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import net.evmodder.EvLib.EvCommand;
+import net.evmodder.EvLib.bukkit.EvCommand;
 
 /**
 * @author EvModder/EvDoc (evdoc at altcraft.net)
@@ -40,9 +40,10 @@ public class CommandStat extends EvCommand{
 				Stream.of("5", "10", "60", "300", "3600"),
 				Bukkit.getServer().getOnlinePlayers().stream().map(p -> p.getName())
 			).filter(n -> n.startsWith(args[1])).toList();
-		if(args.length != 1) return ImmutableList.of(); //TODO: 2nd arg for display time in seconds (or toggle?)
-		//return statNames.stream().filter(name -> name.startsWith(args[0])).toList();
 
+		if(args.length != 1) return ImmutableList.of(); //TODO: 2nd arg for display time in seconds (or toggle?)
+
+		//return statNames.stream().filter(name -> name.startsWith(args[0])).toList();
 		// TODO: Prefix tree would be better
 		int sharedPrefixLen = args[0].length();
 		while(true){
@@ -83,8 +84,8 @@ public class CommandStat extends EvCommand{
 		}
 		if(args.length == 1) ppMan.showTempScoreboard((Player)sender, obj, null, null);
 		else if(args.length == 2){
-			if(args[1].matches("\\d+")) ppMan.showTempScoreboard((Player)sender, obj, Long.parseLong(args[1]), null);
-			else ppMan.showTempScoreboard((Player)sender, obj, null, args[1]);
+			if(args[1].matches("\\d+")) ppMan.showTempScoreboard((Player)sender, obj, Long.parseLong(args[1]), /*entry=*/null);
+			else ppMan.showTempScoreboard((Player)sender, obj, /*seconds=*/null, args[1]);
 		}
 		else if(args[1].matches("\\d+")) ppMan.showTempScoreboard((Player)sender, obj, Long.parseLong(args[1]), args[2]);
 		else if(args[2].matches("\\d+")) ppMan.showTempScoreboard((Player)sender, obj, Long.parseLong(args[2]), args[1]);

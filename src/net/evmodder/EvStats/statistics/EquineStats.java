@@ -11,7 +11,7 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
-import net.evmodder.EvLib.extras.TellrawUtils.TranslationComponent;
+import net.evmodder.EvLib.bukkit.TellrawUtils.TranslationComponent;
 import net.evmodder.EvStats.EvStatsMain;
 import net.evmodder.HorseOwners.HorseUtils;
 import net.evmodder.HorseOwners.api.events.HorseClaimEvent;
