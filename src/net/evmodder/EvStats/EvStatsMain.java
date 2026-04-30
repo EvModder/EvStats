@@ -8,7 +8,7 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.Objective;
 import commands.CommandStat;
 import net.evmodder.EvLib.bukkit.EvPlugin;
-import net.evmodder.EvLib.FileIO;
+import net.evmodder.EvLib.bukkit.ConfigUtils;
 import net.evmodder.EvLib.TextUtils;
 import net.evmodder.EvLib.bukkit.TellrawUtils.Component;
 import net.evmodder.EvLib.bukkit.TellrawUtils.TranslationComponent;
@@ -72,7 +72,7 @@ public class EvStatsMain extends EvPlugin {
 
 	@Override public void onEvEnable(){
 		//---------- <Load translations> ----------------------------------------------------------------------
-		translationsFile = FileIO.loadConfig(this, "translations.yml",
+		translationsFile = ConfigUtils.loadConfig(this, "translations.yml",
 				getClass().getResourceAsStream("/translations.yml"), /*notifyIfNew=*/false);
 //		Configuration embeddedTranslationsFile = FileIO.loadConfig(this, "translations-temp-DELETE.yml",
 //				getClass().getResourceAsStream("/translations.yml"), /*notifyIfNew=*/false);
